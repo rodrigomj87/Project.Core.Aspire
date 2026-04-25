@@ -1,0 +1,92 @@
+    {
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Rodrigo Martins",
+    "classifications": [
+        "Web",
+        "Web API",
+        "API",
+        "Service",
+        "Cloud",
+        "Aspire"
+    ],
+    "identity": "Backend.Blueprint",
+    "name": ".NET Backend Blueprint",
+    "shortName": "backend",
+    "description": "A complete .NET 10 backend template with Aspire orchestration, Clean Architecture, Keycloak authentication, and Azure deployment.",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "sourceName": "Project.Core",
+    "preferNameDirectory": true,
+    "symbols": {
+        "ProjectNameLower": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "lowerCase",
+            "replaces": "projectcore",
+            "fileRename": "projectcore"
+        },
+        "ProjectNameCamelCase": {
+            "type": "derived",
+            "valueSource": "name",
+            "valueTransform": "firstLowerCase",
+            "replaces": "projectCore"
+        },
+        "UserSecretsId": {
+            "type": "generated",
+            "generator": "guid",
+            "replaces": "92823f80-554d-4fd2-9ad2-b361574d1318"
+        }
+    },
+    "primaryOutputs": [
+        {
+            "path": "src/Project.Core.Api/Project.Core.Api.csproj"
+        },
+        {
+            "path": "src/Project.Core.AppHost/Project.Core.AppHost.csproj"
+        },
+        {
+            "path": "src/Project.Core.ServiceDefaults/Project.Core.ServiceDefaults.csproj"
+        }
+    ],
+    "sources": [
+        {
+            "exclude": [
+                "**/node_modules/**",
+                "**/dist/**",
+                "**/src/Project.Core.Web/src/environments/environment.generated.ts",
+                "**/.git/**",
+                "**/bin/**",
+                "**/obj/**"
+            ]
+        }
+    ],
+    "postActions": [
+        {
+            "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+            "continueOnError": true,
+            "description": "Restore NuGet packages required by this project.",
+            "manualInstructions": [
+                {
+                    "text": "Run 'dotnet restore'"
+                }
+            ]
+        },
+        {
+            "actionId": "3A7C4B45-1F5D-4A30-959A-51B88E82B5D2",
+            "continueOnError": true,
+            "description": "Install npm packages for the Angular frontend.",
+            "manualInstructions": [
+                {
+                    "text": "Run 'npm install' inside src/Project.Core.Web"
+                }
+            ],
+            "args": {
+                "executable": "npm",
+                "args": "install",
+                "workingDirectory": "src/Project.Core.Web"
+            }
+        }
+    ]
+}

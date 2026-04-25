@@ -1,0 +1,39 @@
+# Build output
+bin/
+obj/
+dist/
+
+# .NET
+*.user
+*.suo
+.vs/
+.vscode/
+*.DotSettings
+TestResults/
+
+# NuGet
+*.nupkg
+.nuget/
+packages/
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+.angular/cache/
+
+# Generated
+src/Project.Core.Web/src/environments/environment.generated.ts
+
+# Aspire
+.aspire/
+
+# OS
+.DS_Store
+Thumbs.db
+
+.agents/*
+.claude/
+CLAUDE.md
+copilot-instructions.md
+skills-lock.json

@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Project.Core.Domain/Project.Core.Domain.csproj" />
+    <Project Path="src/Project.Core.Application/Project.Core.Application.csproj" />
+    <Project Path="src/Project.Core.Infrastructure/Project.Core.Infrastructure.csproj" />
+    <Project Path="src/Project.Core.Api/Project.Core.Api.csproj" />
+    <Project Path="src/Project.Core.AppHost/Project.Core.AppHost.csproj" />
+    <Project Path="src/Project.Core.ServiceDefaults/Project.Core.ServiceDefaults.csproj" />
+  </Folder>
+</Solution>

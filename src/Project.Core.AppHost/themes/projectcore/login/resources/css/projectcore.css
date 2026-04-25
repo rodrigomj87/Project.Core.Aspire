@@ -1,0 +1,102 @@
+/* projectcore.css — overrides on top of Oxyy stylesheet for Keycloak login pages */
+
+:root {
+  --bs-primary: #0d6efd;
+  --bs-primary-rgb: 13, 110, 253;
+}
+
+html, body { height: 100%; }
+
+body.oxyy-login-register { font-family: 'Poppins', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+
+/* Halftone background for the login shell */
+body.oxyy-login-register.bg-dark {
+  position: relative;
+  background: radial-gradient(ellipse at bottom, #5091dd 0%, #030617 100%) fixed;
+}
+
+body.oxyy-login-register.bg-dark::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at center, rgba(3, 6, 23, 0.85) 0.7px, transparent 0.8px),
+    repeating-linear-gradient(to bottom, rgba(3, 6, 23, 0.45) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(to right, rgba(3, 6, 23, 0.45) 0 1px, transparent 1px 3px);
+  background-size: 4px 4px, 100% 3px, 3px 100%;
+  opacity: 0.55;
+  z-index: 0;
+}
+
+#main-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hide bits of the Oxyy demo not used in Keycloak */
+#styles-switcher,
+.preloader,
+.video-btn,
+#videoModal { display: none !important; }
+
+/* Keep hero image fixed while keeping rounded corners */
+.hero-bg { background-size: cover; background-position: center; }
+
+/* Form column */
+.form-dark .form-control,
+.form-dark .form-select {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+.form-dark .form-control:focus,
+.form-dark .form-select:focus {
+  background-color: rgba(255, 255, 255, 0.10);
+  border-color: var(--bs-primary);
+  color: #fff;
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+.form-dark .form-control::placeholder { color: rgba(255, 255, 255, 0.45); }
+.form-dark .form-control.is-invalid { border-color: #dc3545; }
+.form-dark .invalid-feedback { color: #f8d7da; }
+
+/* Strip out Keycloak/PatternFly defaults that may bleed through */
+.kc-feedback-text { color: inherit; }
+
+/* Social icon brand fallback when Oxyy class is missing */
+.social-icons li a { color: #fff; }
+
+/* Responsive — collapse hero above the form on <992px */
+@media (max-width: 991.98px) {
+  #main-wrapper .row.min-vh-100 { min-height: auto !important; }
+  .col-lg-7.shadow-lg .hero-wrap {
+    border-radius: 0.75rem !important;
+    min-height: 220px;
+  }
+  .col-lg-5.shadow-lg { border-radius: 0.75rem !important; margin-top: 1rem; }
+  .hero-content .logo { margin-top: 1.5rem !important; margin-bottom: 1.5rem !important; }
+  .hero-content h1 { font-size: 1.75rem; }
+  .hero-content p  { font-size: 1rem; }
+}
+
+@media (max-width: 575.98px) {
+  #main-wrapper .container { padding-left: 1rem; padding-right: 1rem; }
+  .col-lg-5.shadow-lg .container { padding-top: 1.5rem !important; padding-bottom: 1.5rem !important; }
+}
+
+/* Force webfonts path to match the theme resources folder */
+@font-face {
+  font-family: "Font Awesome 6 Free";
+  font-style: normal;
+  font-weight: 900;
+  font-display: block;
+  src: url("../webfonts/fa-solid-900.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Font Awesome 6 Brands";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("../webfonts/fa-brands-400.woff2") format("woff2");
+}
