@@ -1,9 +1,9 @@
-# Run when commits are pushed to main
+# Run when a version tag (e.g. v1.0.0) is pushed to main
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    tags:
+      - 'v*'
 
 # Set up permissions for deploying with secretless Azure federated credentials
 # https://learn.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-portal%2Clinux#set-up-azure-login-with-openid-connect-authentication
@@ -12,9 +12,49 @@ permissions:
   contents: read
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.x.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: ${{ runner.os }}-nuget-
+
+      - name: Build
+        run: dotnet build --configuration Release
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: src/Project.Core.Web/package-lock.json
+
+      - name: Install & Build
+        working-directory: src/Project.Core.Web
+        run: |
+          npm ci
+          npm run build
+
+  provision:
+    needs: [build, build-frontend]
+    runs-on: ubuntu-latest
     env:
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
@@ -22,53 +62,55 @@ jobs:
       AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
       AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
       AZURE_POSTGRES_USER: ${{ vars.AZURE_POSTGRES_USER }}
-
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 10.x.x
+      - name: Install azd
+        uses: Azure/setup-azd@v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
-        cache: 'npm'
-        cache-dependency-path: src/Project.Core.Web/package-lock.json
+      - name: Log in with Azure (Federated Credentials)
+        run: |
+          azd auth login `
+            --client-id "$Env:AZURE_CLIENT_ID" `
+            --federated-credential-provider "github" `
+            --tenant-id "$Env:AZURE_TENANT_ID"
+        shell: pwsh
 
-    - name: Build
-      run: dotnet build --configuration Release
+      - name: Provision Infrastructure
+        run: azd provision --no-prompt
+        env:
+          AZURE_KEYCLOAK_PASSWORD: ${{ secrets.AZURE_KEYCLOAK_PASSWORD }}
+          AZURE_POSTGRES_PASSWORD: ${{ secrets.AZURE_POSTGRES_PASSWORD }}
 
-    - name: Frontend - Install & Build
-      working-directory: src/Project.Core.Web
-      run: |
-        npm ci
-        npm run build
+  deploy:
+    needs: provision
+    runs-on: ubuntu-latest
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+      AZURE_POSTGRES_USER: ${{ vars.AZURE_POSTGRES_USER }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Install azd
-      uses: Azure/setup-azd@v2
+      - name: Install azd
+        uses: Azure/setup-azd@v2
 
-    - name: Log in with Azure (Federated Credentials)
-      run: |
-        azd auth login `
-          --client-id "$Env:AZURE_CLIENT_ID" `
-          --federated-credential-provider "github" `
-          --tenant-id "$Env:AZURE_TENANT_ID"
-      shell: pwsh
+      - name: Log in with Azure (Federated Credentials)
+        run: |
+          azd auth login `
+            --client-id "$Env:AZURE_CLIENT_ID" `
+            --federated-credential-provider "github" `
+            --tenant-id "$Env:AZURE_TENANT_ID"
+        shell: pwsh
 
-
-    - name: Provision Infrastructure
-      run: azd provision --no-prompt
-      env:
-        AZURE_KEYCLOAK_PASSWORD: ${{ secrets.AZURE_KEYCLOAK_PASSWORD }}
-        AZURE_POSTGRES_PASSWORD: ${{ secrets.AZURE_POSTGRES_PASSWORD }}
-
-    - name: Deploy Application
-      run: azd deploy --no-prompt
-      env:
-        AZURE_KEYCLOAK_PASSWORD: ${{ secrets.AZURE_KEYCLOAK_PASSWORD }}
-        AZURE_POSTGRES_PASSWORD: ${{ secrets.AZURE_POSTGRES_PASSWORD }}
+      - name: Deploy Application
+        run: azd deploy --no-prompt
+        env:
+          AZURE_KEYCLOAK_PASSWORD: ${{ secrets.AZURE_KEYCLOAK_PASSWORD }}
+          AZURE_POSTGRES_PASSWORD: ${{ secrets.AZURE_POSTGRES_PASSWORD }}
 
