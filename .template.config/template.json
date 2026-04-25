@@ -12,7 +12,7 @@
     "identity": "Backend.Blueprint",
     "name": ".NET Backend Blueprint",
     "shortName": "backend",
-    "description": "A complete .NET 10 backend template with Aspire orchestration, Clean Architecture, Keycloak authentication, and Azure deployment.",
+    "description": "A complete .NET 10 backend template with Aspire orchestration, Clean Architecture, Keycloak authentication, Angular frontend, and Azure deployment.",
     "tags": {
         "language": "C#",
         "type": "project"
