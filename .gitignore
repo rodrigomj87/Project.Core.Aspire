@@ -32,3 +32,5 @@ src/Project.Core.Web/src/environments/environment.generated.ts
 .DS_Store
 Thumbs.db
 
+.claude/
+.agents/*
