@@ -10,24 +10,28 @@ public static class DataExtensions
         this WebApplicationBuilder builder,
         string connectionStringName,
         TokenCredential credential,
-        bool enableSeed = true
+        bool enableSeed = true,
+        bool disableRetry = false
     ) where TContext : DbContext
     {
+        var connectionString = builder.Configuration.GetConnectionString(connectionStringName)
+            ?? throw new InvalidOperationException(
+                $"Connection string '{connectionStringName}' was not found.");
+
+        builder.Services.AddDbContext<TContext>(options =>
+            ConfigureDbContext(options.UseNpgsql(connectionString), enableSeed));
+
         if (builder.Environment.IsProduction())
         {
-            builder.AddAzureNpgsqlDbContext<TContext>(
-                connectionStringName,
-                settings => settings.Credential = credential,
-                configureDbContextOptions: options =>
-                    ConfigureDbContext(options, enableSeed)
-            );
+            builder.EnrichAzureNpgsqlDbContext<TContext>(settings =>
+            {
+                settings.Credential = credential;
+                settings.DisableRetry = disableRetry;
+            });
         }
         else
         {
-            builder.AddNpgsqlDbContext<TContext>(
-                connectionStringName,
-                configureDbContextOptions: options =>
-                    ConfigureDbContext(options, enableSeed));
+            builder.EnrichNpgsqlDbContext<TContext>(settings => settings.DisableRetry = disableRetry);
         }
 
         return builder;
