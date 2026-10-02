@@ -137,6 +137,8 @@ npm start
 
 The development defaults in `environment.development.ts` point to `http://localhost:8080` (Keycloak) and `http://localhost:5000` (API). When Aspire injects `KEYCLOAK_AUTHORITY` and `API_URL` environment variables, `generate-env.js` writes `environment.generated.ts` with the correct URLs.
 
+**Always build through npm, never `ng` directly.** `environment.generated.ts` is git-ignored and is not shipped by `dotnet new` — it is written by `generate-env.js`, which `npm start` and `npm run build` run first. A bare `ng build` or `ng serve` on a fresh clone or a freshly generated project fails with `TS2307` (missing `./environment.generated`) until `node generate-env.js` has run once.
+
 ### CORS (Production)
 
 When deploying to Azure, add the Angular frontend URL to the `AllowedOrigins` in `appsettings.json` of the API project:
