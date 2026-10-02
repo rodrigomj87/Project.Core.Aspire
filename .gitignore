@@ -32,8 +32,3 @@ src/Project.Core.Web/src/environments/environment.generated.ts
 .DS_Store
 Thumbs.db
 
-.agents/*
-.claude/
-CLAUDE.md
-copilot-instructions.md
-skills-lock.json
