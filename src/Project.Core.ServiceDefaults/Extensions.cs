@@ -17,7 +17,6 @@ public static class Extensions
 {
     private const string HealthEndpointPath = "/health/ready";
     private const string AlivenessEndpointPath = "/health/alive";
-    private static readonly string[] AllowedHosts = ["*:8081", "localhost:5082"];
 
     public static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder) where TBuilder : IHostApplicationBuilder
     {
@@ -111,7 +110,6 @@ public static class Extensions
     {
         // All health checks must pass for app to be considered ready to accept traffic after starting
         app.MapHealthChecks(HealthEndpointPath)
-           .RequireHost(AllowedHosts)
            .AllowAnonymous();
 
         // Only health checks tagged with the "live" tag must pass for app to be considered alive
@@ -119,7 +117,6 @@ public static class Extensions
         {
             Predicate = r => r.Tags.Contains("live")
         })
-        .RequireHost(AllowedHosts)
         .AllowAnonymous();
 
         return app;
