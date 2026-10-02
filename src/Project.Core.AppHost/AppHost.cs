@@ -17,6 +17,7 @@ var projectCoreDb = postgres.AddDatabase("ProjectCoreDB", "ProjectCore");
 var keycloakPassword = builder.AddParameter("KeycloakPassword", secret: true, value: "admin");
 int? keycloakPort = builder.ExecutionContext.IsRunMode ? 8080 : null;
 var keycloak = builder.AddKeycloak("keycloak", adminPassword: keycloakPassword, port: keycloakPort)
+                      .WithImageTag("26.5")
                       .WithLifetime(ContainerLifetime.Persistent);
 
 var keycloakAuthority = ReferenceExpression.Create(
