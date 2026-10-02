@@ -65,13 +65,11 @@ app.MapApiEndpoints();
 
 app.UseHttpLogging();
 
+app.UseExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseProjectCoreSwaggerUI();
-}
-else
-{
-    app.UseExceptionHandler();
 }
 
 app.UseStatusCodePages();
